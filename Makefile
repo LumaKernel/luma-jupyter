@@ -14,14 +14,16 @@ OWNER?=lumakernel
 MULTI_IMAGES:= \
 	base-notebook \
 	minimal-notebook \
-	luma-notebook
+	luma-notebook \
+	ocaml-notebook
 # AMD64_ONLY_IMAGES:= \
 # 	luma-amd64-notebook
 # # All of the images
 ALL_IMAGES:= \
 	base-notebook \
 	minimal-notebook \
-	luma-notebook
+	luma-notebook \
+	ocaml-notebook
 	# luma-amd64-notebook
 
 # Enable BuildKit for Docker build
