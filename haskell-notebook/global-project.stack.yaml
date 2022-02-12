@@ -58,5 +58,7 @@ extra-deps:
 - force-layout-0.4.0.6
 - Rlang-QQ-0.3.1.0
 - xformat-0.1.2.1
+- HList-0.5.1.0
+- repa-3.4.1.5
 
 # Resolver copied from IHaskell/stack.yaml, see the Dockerfile.
