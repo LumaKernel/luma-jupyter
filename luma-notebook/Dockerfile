@@ -17,7 +17,7 @@ COPY --from=haskell /opt/ghc /opt/ghc
 COPY --from=haskell /opt/hvega /opt/hvega
 COPY --from=haskell /opt/IHaskell /opt/IHaskell
 COPY --from=haskell /opt/stack /opt/stack
-COPY --from=haskell /home/luma/ihaskell_examples /home/luma/examples/ihaskell
+COPY --from=haskell /home/luma/ihaskell_examples /home/luma/examples/haskell
 
 ENV CCL_VERSION "1.12.1-1"
 ENV CLASP_VERSION "0.4.2.r4473.g7ba57bd76-1"
@@ -410,6 +410,7 @@ RUN git clone https://github.com/yitzchak/shasht.git $HOME/quicklisp/local-proje
       --eval "(uiop:quit)";
 
 USER root
+COPY ./examples/common-lisp $EXAMPLES_PATH
 RUN fix-permissions $EXAMPLES_PATH
 
 USER ${NB_UID}
