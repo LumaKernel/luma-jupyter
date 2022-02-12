@@ -1,7 +1,7 @@
 FROM lumakernel/haskell-notebook:latest AS haskell
 FROM fukamachi/roswell:latest AS roswell
 
-FROM jupyter/minimal-notebook
+FROM lumakernel/minimal-notebook
 
 LABEL maintainer="Luma <world@luma.email>"
 
