@@ -84,7 +84,6 @@ RUN apt-get update --yes && \
       gpg \
       gettext \
       sbcl \
-      ecl \
       libzmq3-dev \
       lsb-release \
       # Maintenance Tools
@@ -357,9 +356,6 @@ RUN curl -kLO https://beta.quicklisp.org/quicklisp.lisp
 RUN sbcl --non-interactive --load quicklisp.lisp \
       --eval "(quicklisp-quickstart:install)" \
       --eval "(ql-util:without-prompting (ql:add-to-init-file))"
-RUN ecl --load quicklisp.lisp \
-      --eval "(ql-util:without-prompting (ql:add-to-init-file))" \
-      --eval "(uiop:quit)"
 
 USER root
 RUN mv "$(opam var share)/jupyter"* "${CONDA_DIR}/share/jupyter/kernels/ocaml-jupyter" && \
@@ -378,11 +374,7 @@ RUN git clone https://github.com/yitzchak/shasht.git $HOME/quicklisp/local-proje
     mv $HOME/quicklisp/local-projects/ngl-clj/examples $HOME/examples/ngl-clj; \
     sbcl --non-interactive \
       --eval "(ql:quickload '(:common-lisp-jupyter :cytoscape-clj :kekule-clj :resizable-box-clj :ngl-clj))" \
-      --eval "(clj:install :use-implementation t)"; \
-    ecl \
-      --eval "(ql:quickload '(:common-lisp-jupyter :cytoscape-clj :kekule-clj :resizable-box-clj :ngl-clj))" \
-      --eval "(clj:install :use-implementation t)" \
-      --eval "(uiop:quit)";
+      --eval "(clj:install :use-implementation t)"
 
 USER root
 COPY ./examples/common-lisp $EXAMPLES_PATH
