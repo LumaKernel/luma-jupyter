@@ -88,7 +88,6 @@ RUN apt-get update --yes && \
       sbcl \
       ecl \
       libzmq3-dev \
-      libzmq3-dev:i386 \
       lsb-release \
       # Maintenance Tools
       git \
