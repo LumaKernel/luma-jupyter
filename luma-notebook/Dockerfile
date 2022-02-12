@@ -19,7 +19,6 @@ COPY --from=haskell /opt/IHaskell /opt/IHaskell
 COPY --from=haskell /opt/stack /opt/stack
 COPY --from=haskell /home/luma/ihaskell_examples /home/luma/examples/haskell
 
-ENV CCL_VERSION "1.12.1-1"
 ENV PATH "${HOME}/.local/bin:${HOME}/miniconda/bin/:${PATH}"
 
 # ffmpeg for matplotlib anim & dvipng+cm-super for latex labels
@@ -95,11 +94,6 @@ RUN apt-get update --yes && \
       curl \
       jq \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# CommonLisp
-RUN wget https://github.com/yitzchak/mpr/releases/download/ccl_${CCL_VERSION}/ccl_${CCL_VERSION}_amd64_ubuntu_focal.deb && \
-    apt-get install -y ./ccl_${CCL_VERSION}_amd64_ubuntu_focal.deb \
-    rm ccl_${CCL_VERSION}_amd64_ubuntu_focal.deb
 
 # Stack Linux (generic) Manual download
 # https://docs.haskellstack.org/en/stable/install_and_upgrade/#linux-generic
@@ -363,9 +357,6 @@ RUN jupyter serverextension enable --user --py jupyterlab; \
     sbcl --non-interactive --load quicklisp.lisp \
       --eval "(quicklisp-quickstart:install)" \
       --eval "(ql-util:without-prompting (ql:add-to-init-file))"; \
-    ccl --load quicklisp/setup.lisp \
-      --eval "(ql-util:without-prompting (ql:add-to-init-file))" \
-      --eval "(uiop:quit)"; \
     ecl --load quicklisp/setup.lisp \
       --eval "(ql-util:without-prompting (ql:add-to-init-file))" \
       --eval "(uiop:quit)";
@@ -388,10 +379,6 @@ RUN git clone https://github.com/yitzchak/shasht.git $HOME/quicklisp/local-proje
     sbcl --non-interactive \
       --eval "(ql:quickload '(:common-lisp-jupyter :cytoscape-clj :kekule-clj :resizable-box-clj :ngl-clj))" \
       --eval "(clj:install :use-implementation t)"; \
-    ccl \
-      --eval "(ql:quickload '(:common-lisp-jupyter :cytoscape-clj :kekule-clj :resizable-box-clj :ngl-clj))" \
-      --eval "(clj:install :use-implementation t)" \
-      --eval "(uiop:quit)"; \
     ecl \
       --eval "(ql:quickload '(:common-lisp-jupyter :cytoscape-clj :kekule-clj :resizable-box-clj :ngl-clj))" \
       --eval "(clj:install :use-implementation t)" \
