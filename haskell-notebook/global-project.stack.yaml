@@ -49,12 +49,14 @@ extra-deps:
 - gtk2hs-buildtools-0.13.8.0
 - magic-1.1
 - plot-0.2.3.11
-# - static-canvas-0.2.0.3
+- static-canvas-0.2.0.3
 - statestack-0.3
 - vinyl-0.13.0
 - dual-tree-0.2.2.1
 - monoid-extras-0.6
 - svg-builder-0.1.1
 - force-layout-0.4.0.6
+- Rlang-QQ-0.3.1.0
+- xformat-0.1.2.1
 
 # Resolver copied from IHaskell/stack.yaml, see the Dockerfile.

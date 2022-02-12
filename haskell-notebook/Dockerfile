@@ -139,25 +139,24 @@ RUN    stack build $STACK_ARGS ihaskell \
 
 # Install IHaskell.Display libraries
 # https://github.com/gibiansky/IHaskell/tree/master/ihaskell-display
-RUN    stack build $STACK_ARGS ihaskell-aeson \
-    && stack build $STACK_ARGS ihaskell-blaze \
-    && stack build $STACK_ARGS ihaskell-charts \
-    && stack build $STACK_ARGS ihaskell-diagrams \
-    && stack build $STACK_ARGS ihaskell-gnuplot \
-    && stack build $STACK_ARGS ihaskell-graphviz \
-    && stack build $STACK_ARGS ihaskell-hatex \
-    && stack build $STACK_ARGS ihaskell-juicypixels \
-    && stack build $STACK_ARGS ihaskell-magic \
-    && stack build $STACK_ARGS ihaskell-plot \
-    && stack build $STACK_ARGS ihaskell-rlangqq \
-    && stack build $STACK_ARGS ihaskell-static-canvas \
-    && stack build $STACK_ARGS ihaskell-widgets \
-    && stack build $STACK_ARGS hvega \
-    && stack build $STACK_ARGS ihaskell-hvega \
-    && fix-permissions $STACK_ROOT \
-    # Fix for https://github.com/jamesdbrock/ihaskell-notebook/issues/14#issuecomment-636334824
-    && fix-permissions /opt/IHaskell \
-    && fix-permissions /opt/hvega
+RUN stack build $STACK_ARGS ihaskell-aeson
+RUN stack build $STACK_ARGS ihaskell-blaze
+RUN stack build $STACK_ARGS ihaskell-charts
+RUN stack build $STACK_ARGS ihaskell-diagrams
+RUN stack build $STACK_ARGS ihaskell-gnuplot
+RUN stack build $STACK_ARGS ihaskell-graphviz
+RUN stack build $STACK_ARGS ihaskell-hatex
+RUN stack build $STACK_ARGS ihaskell-juicypixels
+RUN stack build $STACK_ARGS ihaskell-magic
+RUN stack build $STACK_ARGS ihaskell-plot
+RUN stack build $STACK_ARGS ihaskell-rlangqq
+RUN stack build $STACK_ARGS ihaskell-static-canvas
+RUN stack build $STACK_ARGS ihaskell-widgets
+RUN stack build $STACK_ARGS hvega
+RUN stack build $STACK_ARGS ihaskell-hvega
+RUN fix-permissions $STACK_ROOT
+RUN fix-permissions /opt/IHaskell
+RUN fix-permissions /opt/hvega
 
 # Cleanup
 # Don't clean IHaskell/.stack-work, 7GB, this causes issue #5
