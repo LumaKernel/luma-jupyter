@@ -1,3 +1,5 @@
+FROM lumakernel/haskell-notebook:latest AS haskell
+
 FROM jupyter/minimal-notebook
 
 LABEL maintainer="Luma <world@luma.email>"
@@ -7,6 +9,12 @@ USER root
 ENV JULIA_DEPOT_PATH=/opt/julia \
     JULIA_PKGDIR=/opt/julia \
     JULIA_VERSION="1.7.2"
+
+COPY --from=haskell /opt/ghc /opt/ghc
+COPY --from=haskell /opt/hvega /opt/hvega
+COPY --from=haskell /opt/IHaskell /opt/IHaskell
+COPY --from=haskell /opt/stack /opt/stack
+COPY --from=haskell /home/luma/ihaskell_examples /home/luma/ihaskell_examples
 
 # ffmpeg for matplotlib anim & dvipng+cm-super for latex labels
 RUN apt-get update --yes && \
@@ -96,15 +104,6 @@ COPY stack.config.yaml /etc/stack/config.yaml
 RUN fix-permissions /etc/stack
 
 ENV STACK_ROOT=/opt/stack
-RUN mkdir -p $STACK_ROOT
-RUN fix-permissions $STACK_ROOT
-
-# Stack global project stack.yaml
-# https://docs.haskellstack.org/en/stable/yaml_configuration/#yaml-configuration
-RUN mkdir -p $STACK_ROOT/global-project
-COPY global-project.stack.yaml $STACK_ROOT/global-project/stack.yaml
-RUN    chown --recursive $NB_UID:users $STACK_ROOT/global-project \
-    && fix-permissions $STACK_ROOT/global-project
 
 # fix-permissions for /usr/local/share/jupyter so that we can install
 # the IHaskell kernel there. Seems like the best place to install it, see
@@ -136,49 +135,15 @@ ARG IHASKELL_COMMIT=db8bd784344649be5c5bd072f23cdccb037d93a9
 # ihaskell-hvega-0.4.0.0
 ARG HVEGA_COMMIT=10704fe4f43ef21d7daceaadfd8a25997840d7b8
 
+ARG HASKELL_EXAMPLES_PATH=/home/luma/ihaskell_examples
+
 # Clone IHaskell and install ghc from the IHaskell resolver
-RUN cd /opt \
-  && curl -L "https://github.com/gibiansky/IHaskell/tarball/$IHASKELL_COMMIT" | tar xzf - \
-  && mv *IHaskell* IHaskell \
-  && curl -L "https://github.com/DougBurke/hvega/tarball/$HVEGA_COMMIT" | tar xzf - \
-  && mv *hvega* hvega \
-  # Copy the Stack global project resolver from the IHaskell resolver.
-  && grep 'resolver:' /opt/IHaskell/stack.yaml >> $STACK_ROOT/global-project/stack.yaml \
-  && fix-permissions /opt/IHaskell \
+RUN ( \
+  fix-permissions /opt/IHaskell \
   && fix-permissions $STACK_ROOT \
   && fix-permissions /opt/hvega \
-  && stack setup \
-  && fix-permissions $STACK_ROOT \
-  && rm /opt/stack/programs/x86_64-linux/ghc*.tar.xz
-
-# Build IHaskell
-RUN  stack build $STACK_ARGS ihaskell \
-  # Note that we are NOT in the /opt/IHaskell directory here, we are
-  # installing ihaskell via the paths given in /opt/stack/global-project/stack.yaml
-  && fix-permissions /opt/IHaskell \
-  && fix-permissions $STACK_ROOT
-
-# Install IHaskell.Display libraries
-# https://github.com/gibiansky/IHaskell/tree/master/ihaskell-display
-RUN  stack build $STACK_ARGS ihaskell-aeson \
-  && stack build $STACK_ARGS ihaskell-blaze \
-  && stack build $STACK_ARGS ihaskell-charts \
-  && stack build $STACK_ARGS ihaskell-diagrams \
-  && stack build $STACK_ARGS ihaskell-gnuplot \
-  && stack build $STACK_ARGS ihaskell-graphviz \
-  && stack build $STACK_ARGS ihaskell-hatex \
-  && stack build $STACK_ARGS ihaskell-juicypixels \
-# && stack build $STACK_ARGS ihaskell-magic \
-# && stack build $STACK_ARGS ihaskell-plot \
-# && stack build $STACK_ARGS ihaskell-rlangqq \
-# && stack build $STACK_ARGS ihaskell-static-canvas \
-  && stack build $STACK_ARGS ihaskell-widgets \
-  && stack build $STACK_ARGS hvega \
-  && stack build $STACK_ARGS ihaskell-hvega \
-  && fix-permissions $STACK_ROOT \
-  # Fix for https://github.com/jamesdbrock/ihaskell-notebook/issues/14#issuecomment-636334824
-  && fix-permissions /opt/IHaskell \
-  && fix-permissions /opt/hvega
+  && fix-permissions $HASKELL_EXAMPLES_PATH \
+)
 
 # Cleanup
 # Don't clean IHaskell/.stack-work, 7GB, this causes issue #5
@@ -349,36 +314,13 @@ RUN \
     && rm -rf /opt/IHaskell/jupyterlab-ihaskell/node_modules
 
 RUN conda install --quiet --yes \
-# ihaskell-widgets needs ipywidgets
+    # ihaskell-widgets needs ipywidgets
     'ipywidgets' && \
-# ihaskell-hvega doesn't need an extension. https://github.com/jupyterlab/jupyter-renderers
+    # ihaskell-hvega doesn't need an extension. https://github.com/jupyterlab/jupyter-renderers
 #    'jupyterlab-vega3' && \
     conda clean --all -f -y && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
-
-# Example IHaskell notebooks will be collected in this directory.
-ARG EXAMPLES_PATH=/home/$NB_USER/ihaskell_examples
-
-# Collect all the IHaskell example notebooks in EXAMPLES_PATH.
-RUN    mkdir -p $EXAMPLES_PATH \
-    && cd $EXAMPLES_PATH \
-    && mkdir -p ihaskell \
-    && cp --recursive /opt/IHaskell/notebooks/* ihaskell/ \
-    && mkdir -p ihaskell-juicypixels \
-    && cp /opt/IHaskell/ihaskell-display/ihaskell-juicypixels/*.ipynb ihaskell-juicypixels/ \
-    && mkdir -p ihaskell-charts \
-    && cp /opt/IHaskell/ihaskell-display/ihaskell-charts/*.ipynb ihaskell-charts/ \
-    && mkdir -p ihaskell-diagrams \
-    && cp /opt/IHaskell/ihaskell-display/ihaskell-diagrams/*.ipynb ihaskell-diagrams/ \
-#    && mkdir -p ihaskell-gnuplot \
-#    && cp /opt/IHaskell/ihaskell-display/ihaskell-gnuplot/*.ipynb ihaskell-gnuplot/ \
-    && mkdir -p ihaskell-widgets \
-    && cp --recursive /opt/IHaskell/ihaskell-display/ihaskell-widgets/Examples/* ihaskell-widgets/ \
-    && mkdir -p ihaskell-hvega \
-    && cp /opt/hvega/notebooks/*.ipynb ihaskell-hvega/ \
-    && cp /opt/hvega/notebooks/*.tsv ihaskell-hvega/ \
-    && fix-permissions $EXAMPLES_PATH
 
 RUN opam init \
   --auto-setup \
