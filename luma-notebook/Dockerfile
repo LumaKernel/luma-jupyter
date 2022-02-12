@@ -20,7 +20,7 @@ COPY --from=haskell /opt/stack /opt/stack
 COPY --from=haskell /home/luma/ihaskell_examples /home/luma/examples/haskell
 
 ENV CCL_VERSION "1.12.1-1"
-ENV CLASP_VERSION "0.4.2.r4473.g7ba57bd76-1"
+ENV CLASP_VERSION "0.4.2.r4924.gfb017d54b-1"
 ENV PATH "${HOME}/.local/bin:${HOME}/miniconda/bin/:${PATH}"
 
 # ffmpeg for matplotlib anim & dvipng+cm-super for latex labels
