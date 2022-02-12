@@ -11,11 +11,13 @@ ENV JULIA_DEPOT_PATH=/opt/julia \
     JULIA_PKGDIR=/opt/julia \
     JULIA_VERSION="1.7.2"
 
+RUN mkdir -p /home/luma/examples
+
 COPY --from=haskell /opt/ghc /opt/ghc
 COPY --from=haskell /opt/hvega /opt/hvega
 COPY --from=haskell /opt/IHaskell /opt/IHaskell
 COPY --from=haskell /opt/stack /opt/stack
-COPY --from=haskell /home/luma/ihaskell_examples /home/luma/ihaskell_examples
+COPY --from=haskell /home/luma/ihaskell_examples /home/luma/examples/ihaskell
 
 ENV CCL_VERSION "1.12.1-1"
 ENV CLASP_VERSION "0.4.2.r4473.g7ba57bd76-1"
@@ -159,14 +161,13 @@ ARG IHASKELL_COMMIT=db8bd784344649be5c5bd072f23cdccb037d93a9
 # ihaskell-hvega-0.4.0.0
 ARG HVEGA_COMMIT=10704fe4f43ef21d7daceaadfd8a25997840d7b8
 
-ARG HASKELL_EXAMPLES_PATH=/home/luma/ihaskell_examples
+ARG EXAMPLES_PATH=/home/luma/examples
 
 # Clone IHaskell and install ghc from the IHaskell resolver
 RUN ( \
   fix-permissions /opt/IHaskell \
   && fix-permissions $STACK_ROOT \
   && fix-permissions /opt/hvega \
-  && fix-permissions $HASKELL_EXAMPLES_PATH \
 )
 
 # Cleanup
@@ -380,20 +381,17 @@ USER root
 RUN mv "$(opam var share)/jupyter"* "${CONDA_DIR}/share/jupyter/kernels/ocaml-jupyter" && \
     fix-permissions "${CONDA_DIR}/share/jupyter"
 
-# CommonLisp
-COPY . ${HOME}/quicklisp/local-projects/common-lisp-jupyter
-RUN fix-permissions quicklisp/local-projects/common-lisp-jupyter
-
 USER ${NB_UID}
-RUN git clone https://github.com/yitzchak/shasht.git ~/quicklisp/local-projects/shasht; \
-    git clone https://github.com/yitzchak/cytoscape-clj.git ~/quicklisp/local-projects/cytoscape-clj; \
-    mv ~/quicklisp/local-projects/common-lisp-jupyter/examples ~/examples/common-lisp; \
-    mv ~/quicklisp/local-projects/cytoscape-clj/examples ~/examples/cytoscape-clj; \
-    git clone https://github.com/yitzchak/kekule-clj.git ~/quicklisp/local-projects/kekule-clj; \
-    mv ~/quicklisp/local-projects/kekule-clj/examples ~/kekule-clj; \
-    git clone https://github.com/yitzchak/resizable-box-clj.git ~/quicklisp/local-projects/resizable-box-clj; \
-    git clone https://github.com/yitzchak/ngl-clj.git ~/quicklisp/local-projects/ngl-clj; \
-    mv ~/quicklisp/local-projects/ngl-clj/examples ~/examples/ngl-clj; \
+
+# CommonLisp
+RUN git clone https://github.com/yitzchak/shasht.git $HOME/quicklisp/local-projects/shasht; \
+    git clone https://github.com/yitzchak/cytoscape-clj.git $HOME/quicklisp/local-projects/cytoscape-clj; \
+    mv $HOME/quicklisp/local-projects/cytoscape-clj/examples $HOME/examples/cytoscape-clj; \
+    git clone https://github.com/yitzchak/kekule-clj.git $HOME/quicklisp/local-projects/kekule-clj; \
+    mv $HOME/quicklisp/local-projects/kekule-clj/examples $HOME/kekule-clj; \
+    git clone https://github.com/yitzchak/resizable-box-clj.git $HOME/quicklisp/local-projects/resizable-box-clj; \
+    git clone https://github.com/yitzchak/ngl-clj.git $HOME/quicklisp/local-projects/ngl-clj; \
+    mv $HOME/quicklisp/local-projects/ngl-clj/examples $HOME/examples/ngl-clj; \
     sbcl --non-interactive \
       --eval "(ql:quickload '(:common-lisp-jupyter :cytoscape-clj :kekule-clj :resizable-box-clj :ngl-clj))" \
       --eval "(clj:install :use-implementation t)"; \
@@ -410,6 +408,9 @@ RUN git clone https://github.com/yitzchak/shasht.git ~/quicklisp/local-projects/
       --eval "(ql:quickload '(:common-lisp-jupyter :cytoscape-clj :kekule-clj :resizable-box-clj :ngl-clj))" \
       --eval "(clj:install :use-implementation t)" \
       --eval "(uiop:quit)";
+
+USER root
+RUN fix-permissions $EXAMPLES_PATH
 
 USER ${NB_UID}
 

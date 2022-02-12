@@ -139,17 +139,17 @@ RUN    stack build $STACK_ARGS ihaskell \
 
 # Install IHaskell.Display libraries
 # https://github.com/gibiansky/IHaskell/tree/master/ihaskell-display
-# RUN stack build $STACK_ARGS ihaskell-aeson
-# RUN stack build $STACK_ARGS ihaskell-blaze
-# RUN stack build $STACK_ARGS ihaskell-charts
-# RUN stack build $STACK_ARGS ihaskell-diagrams
-# RUN stack build $STACK_ARGS ihaskell-gnuplot
-# RUN stack build $STACK_ARGS ihaskell-graphviz
-# RUN stack build $STACK_ARGS ihaskell-hatex
-# RUN stack build $STACK_ARGS ihaskell-juicypixels
-# RUN stack build $STACK_ARGS ihaskell-magic
-# RUN stack build $STACK_ARGS ihaskell-plot
-RUN stack build $STACK_ARGS ihaskell-rlangqq
+RUN stack build $STACK_ARGS ihaskell-aeson
+RUN stack build $STACK_ARGS ihaskell-blaze
+RUN stack build $STACK_ARGS ihaskell-charts
+RUN stack build $STACK_ARGS ihaskell-diagrams
+RUN stack build $STACK_ARGS ihaskell-gnuplot
+RUN stack build $STACK_ARGS ihaskell-graphviz
+RUN stack build $STACK_ARGS ihaskell-hatex
+RUN stack build $STACK_ARGS ihaskell-juicypixels
+RUN stack build $STACK_ARGS ihaskell-magic
+RUN stack build $STACK_ARGS ihaskell-plot
+# RUN stack build $STACK_ARGS ihaskell-rlangqq
 RUN stack build $STACK_ARGS ihaskell-static-canvas
 RUN stack build $STACK_ARGS ihaskell-widgets
 RUN stack build $STACK_ARGS hvega
