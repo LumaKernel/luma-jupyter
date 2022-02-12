@@ -315,16 +315,16 @@ RUN \
 # Install the IHaskell kernel at /usr/local/share/jupyter/kernels, which is
 # in `jupyter --paths` data:
        stack exec ihaskell -- install --stack --prefix=/usr/local \
-# Install the ihaskell_labextension for JupyterLab syntax highlighting
+    # Install the ihaskell_labextension for JupyterLab syntax highlighting
     && npm install -g typescript \
     && cd /opt/IHaskell/jupyterlab-ihaskell \
     && npm install \
     && npm run build \
     && jupyter labextension install . \
-# Cleanup
+    # Cleanup
     && npm cache clean --force \
     && rm -rf /home/$NB_USER/.cache/yarn \
-# Clean jupyterlab-ihaskell/node_nodemodules, 86MB
+    # Clean jupyterlab-ihaskell/node_nodemodules, 86MB
     && rm -rf /opt/IHaskell/jupyterlab-ihaskell/node_modules
 
 RUN conda install --quiet --yes \
@@ -347,19 +347,19 @@ RUN opam install -y ocamlfind camlp4 jupyter jupyter-archimedes
 RUN opam exec ocaml-jupyter-opam-genspec
 
 # CommonLisp
-RUN jupyter serverextension enable --user --py jupyterlab; \
-    jupyter labextension install @jupyter-widgets/jupyterlab-manager \
+RUN jupyter serverextension enable --user --py jupyterlab
+RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager \
       jupyterlab-edit-magic cytoscape-clj kekule-clj resizable-box-clj \
-      ngl-clj jupyterlab-debugger-restarts; \
-    jupyter nbextension enable --user --py widgetsnbextension; \
-    jupyter lab build; \
-    curl -kLO https://beta.quicklisp.org/quicklisp.lisp; \
-    sbcl --non-interactive --load quicklisp.lisp \
+      ngl-clj jupyterlab-debugger-restarts
+RUN jupyter nbextension enable --user --py widgetsnbextension
+RUN jupyter lab build
+RUN curl -kLO https://beta.quicklisp.org/quicklisp.lisp
+RUN sbcl --non-interactive --load quicklisp.lisp \
       --eval "(quicklisp-quickstart:install)" \
-      --eval "(ql-util:without-prompting (ql:add-to-init-file))"; \
-    ecl --load quicklisp/setup.lisp \
+      --eval "(ql-util:without-prompting (ql:add-to-init-file))"
+RUN ecl --load quicklisp/setup.lisp \
       --eval "(ql-util:without-prompting (ql:add-to-init-file))" \
-      --eval "(uiop:quit)";
+      --eval "(uiop:quit)"
 
 USER root
 RUN mv "$(opam var share)/jupyter"* "${CONDA_DIR}/share/jupyter/kernels/ocaml-jupyter" && \
