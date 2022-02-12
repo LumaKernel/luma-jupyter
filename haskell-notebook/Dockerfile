@@ -149,6 +149,7 @@ RUN stack build $STACK_ARGS ihaskell-hatex
 RUN stack build $STACK_ARGS ihaskell-juicypixels
 RUN stack build $STACK_ARGS ihaskell-magic
 RUN stack build $STACK_ARGS ihaskell-plot
+COPY 2.global-project.stack.yaml $STACK_ROOT/global-project/stack.yaml
 RUN stack build $STACK_ARGS ihaskell-rlangqq
 RUN stack build $STACK_ARGS ihaskell-static-canvas
 RUN stack build $STACK_ARGS ihaskell-widgets

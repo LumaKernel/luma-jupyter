@@ -1,4 +1,5 @@
 FROM lumakernel/haskell-notebook:latest AS haskell
+FROM fukamachi/roswell:latest AS roswell
 
 FROM jupyter/minimal-notebook
 
@@ -15,6 +16,10 @@ COPY --from=haskell /opt/hvega /opt/hvega
 COPY --from=haskell /opt/IHaskell /opt/IHaskell
 COPY --from=haskell /opt/stack /opt/stack
 COPY --from=haskell /home/luma/ihaskell_examples /home/luma/ihaskell_examples
+
+ENV CCL_VERSION "1.12.1-1"
+ENV CLASP_VERSION "0.4.2.r4473.g7ba57bd76-1"
+ENV PATH "${HOME}/.local/bin:${HOME}/miniconda/bin/:${PATH}"
 
 # ffmpeg for matplotlib anim & dvipng+cm-super for latex labels
 RUN apt-get update --yes && \
@@ -75,10 +80,29 @@ RUN apt-get update --yes && \
       libgmp-dev \
       libzmq3-dev \
       zlib1g-dev \
+      # CommonLisp
+      gpg \
+      gettext \
+      sbcl \
+      ecl \
+      libzmq3-dev \
+      libzmq3-dev:i386 \
+      lsb-release \
       # Maintenance Tools
       git \
       less \
+      wget \
+      curl \
+      jq \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# CommonLisp
+RUN wget https://github.com/yitzchak/mpr/releases/download/ccl_${CCL_VERSION}/ccl_${CCL_VERSION}_amd64_ubuntu_focal.deb && \
+    wget https://github.com/yitzchak/mpr/releases/download/clasp-cl-git_${CLASP_VERSION}/clasp-cl-git_${CLASP_VERSION}_amd64_ubuntu_focal.deb && \
+    apt-get install -y ./ccl_${CCL_VERSION}_amd64_ubuntu_focal.deb \
+                       ./clasp-cl-git_${CLASP_VERSION}_amd64_ubuntu_focal.deb && \
+    rm ccl_${CCL_VERSION}_amd64_ubuntu_focal.deb \
+       clasp-cl-git_${CLASP_VERSION}_amd64_ubuntu_focal.deb
 
 # Stack Linux (generic) Manual download
 # https://docs.haskellstack.org/en/stable/install_and_upgrade/#linux-generic
@@ -332,9 +356,60 @@ RUN opam switch create -y 4.13.1
 RUN opam install -y ocamlfind camlp4 jupyter jupyter-archimedes
 RUN opam exec ocaml-jupyter-opam-genspec
 
+# CommonLisp
+RUN jupyter serverextension enable --user --py jupyterlab; \
+    jupyter labextension install @jupyter-widgets/jupyterlab-manager \
+      jupyterlab-edit-magic cytoscape-clj kekule-clj resizable-box-clj \
+      ngl-clj jupyterlab-debugger-restarts; \
+    jupyter nbextension enable --user --py widgetsnbextension; \
+    jupyter lab build; \
+    curl -kLO https://beta.quicklisp.org/quicklisp.lisp; \
+    sbcl --non-interactive --load quicklisp.lisp \
+      --eval "(quicklisp-quickstart:install)" \
+      --eval "(ql-util:without-prompting (ql:add-to-init-file))"; \
+    ccl --load quicklisp/setup.lisp \
+      --eval "(ql-util:without-prompting (ql:add-to-init-file))" \
+      --eval "(uiop:quit)"; \
+    iclasp-boehmprecise --non-interactive --load quicklisp/setup.lisp \
+      --eval "(ql-util:without-prompting (ql:add-to-init-file))"; \
+    ecl --load quicklisp/setup.lisp \
+      --eval "(ql-util:without-prompting (ql:add-to-init-file))" \
+      --eval "(uiop:quit)";
+
 USER root
 RUN mv "$(opam var share)/jupyter"* "${CONDA_DIR}/share/jupyter/kernels/ocaml-jupyter" && \
     fix-permissions "${CONDA_DIR}/share/jupyter"
+
+# CommonLisp
+COPY . ${HOME}/quicklisp/local-projects/common-lisp-jupyter
+RUN fix-permissions quicklisp/local-projects/common-lisp-jupyter
+
+USER ${NB_UID}
+RUN git clone https://github.com/yitzchak/shasht.git ~/quicklisp/local-projects/shasht; \
+    git clone https://github.com/yitzchak/cytoscape-clj.git ~/quicklisp/local-projects/cytoscape-clj; \
+    mv ~/quicklisp/local-projects/common-lisp-jupyter/examples ~/examples/common-lisp; \
+    mv ~/quicklisp/local-projects/cytoscape-clj/examples ~/examples/cytoscape-clj; \
+    git clone https://github.com/yitzchak/kekule-clj.git ~/quicklisp/local-projects/kekule-clj; \
+    mv ~/quicklisp/local-projects/kekule-clj/examples ~/kekule-clj; \
+    git clone https://github.com/yitzchak/resizable-box-clj.git ~/quicklisp/local-projects/resizable-box-clj; \
+    git clone https://github.com/yitzchak/ngl-clj.git ~/quicklisp/local-projects/ngl-clj; \
+    mv ~/quicklisp/local-projects/ngl-clj/examples ~/examples/ngl-clj; \
+    sbcl --non-interactive \
+      --eval "(ql:quickload '(:common-lisp-jupyter :cytoscape-clj :kekule-clj :resizable-box-clj :ngl-clj))" \
+      --eval "(clj:install :use-implementation t)"; \
+    ccl \
+      --eval "(ql:quickload '(:common-lisp-jupyter :cytoscape-clj :kekule-clj :resizable-box-clj :ngl-clj))" \
+      --eval "(clj:install :use-implementation t)" \
+      --eval "(uiop:quit)"; \
+    iclasp-boehmprecise --non-interactive \
+      --eval "(ql:quickload :common-lisp-jupyter)" \
+      --eval "(clj:install :use-implementation t)"; \
+    iclasp-boehmprecise --non-interactive \
+      --eval "(ql:quickload '(:cytoscape-clj :kekule-clj :resizable-box-clj :ngl-clj))"; \
+    ecl \
+      --eval "(ql:quickload '(:common-lisp-jupyter :cytoscape-clj :kekule-clj :resizable-box-clj :ngl-clj))" \
+      --eval "(clj:install :use-implementation t)" \
+      --eval "(uiop:quit)";
 
 USER ${NB_UID}
 
