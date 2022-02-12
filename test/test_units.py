@@ -17,7 +17,7 @@ def test_units(container: TrackedContainer) -> None:
     short_image_name = container.image_name[container.image_name.rfind("/") + 1 :]
     host_data_dir = THIS_DIR / f"../{short_image_name}/test/units"
     LOGGER.info(f"Searching for units tests in {host_data_dir}")
-    cont_data_dir = "/home/jovyan/data"
+    cont_data_dir = "/home/luma/data"
 
     if not host_data_dir.exists():
         LOGGER.info(f"Not found unit tests for image: {container.image_name}")

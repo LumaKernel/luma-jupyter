@@ -36,7 +36,7 @@ def test_matplotlib(
     - Test matplotlib latex fonts, which depend on the cm-super package
     """
     host_data_dir = THIS_DIR / "data"
-    cont_data_dir = "/home/jovyan/data"
+    cont_data_dir = "/home/luma/data"
     output_dir = "/tmp"
     LOGGER.info(description)
     command = "sleep infinity"

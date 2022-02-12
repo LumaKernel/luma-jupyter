@@ -166,11 +166,11 @@ RUN    stack build $STACK_ARGS ihaskell-aeson \
 # We can't actually figure out anything to cleanup.
 
 # Bug workaround for https://github.com/jamesdbrock/ihaskell-notebook/issues/9
-RUN mkdir -p /home/jovyan/.local/share/jupyter/runtime \
-    && fix-permissions /home/jovyan/.local \
-    && fix-permissions /home/jovyan/.local/share \
-    && fix-permissions /home/jovyan/.local/share/jupyter \
-    && fix-permissions /home/jovyan/.local/share/jupyter/runtime
+RUN mkdir -p /home/${NB_USER}/.local/share/jupyter/runtime \
+    && fix-permissions /home/${NB_USER}/.local \
+    && fix-permissions /home/${NB_USER}/.local/share \
+    && fix-permissions /home/${NB_USER}/.local/share/jupyter \
+    && fix-permissions /home/${NB_USER}/.local/share/jupyter/runtime
 
 # Install system-level ghc using the ghc which was installed by stack
 # using the IHaskell resolver.

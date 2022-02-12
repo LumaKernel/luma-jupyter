@@ -59,7 +59,7 @@ def test_uid_change(container: TrackedContainer) -> None:
         environment=["NB_UID=1010"],
         command=["start.sh", "bash", "-c", "id && touch /opt/conda/test-file"],
     )
-    assert "uid=1010(jovyan)" in logs
+    assert "uid=1010(luma)" in logs
 
 
 def test_gid_change(container: TrackedContainer) -> None:
@@ -71,8 +71,8 @@ def test_gid_change(container: TrackedContainer) -> None:
         environment=["NB_GID=110"],
         command=["start.sh", "id"],
     )
-    assert "gid=110(jovyan)" in logs
-    assert "groups=110(jovyan),100(users)" in logs
+    assert "gid=110(luma)" in logs
+    assert "groups=110(luma),100(users)" in logs
 
 
 def test_nb_user_change(container: TrackedContainer) -> None:
@@ -93,7 +93,7 @@ def test_nb_user_change(container: TrackedContainer) -> None:
     assert "ERROR" not in output
     assert "WARNING" not in output
     assert (
-        f"username: jovyan       -> {nb_user}" in output
+        f"username: luma       -> {nb_user}" in output
     ), f"User is not changed to {nb_user}"
 
     LOGGER.info(f"Checking {nb_user} id ...")
@@ -134,17 +134,17 @@ def test_chown_extra(container: TrackedContainer) -> None:
         environment=[
             "NB_UID=1010",
             "NB_GID=101",
-            "CHOWN_EXTRA=/home/jovyan,/opt/conda/bin",
+            "CHOWN_EXTRA=/home/luma,/opt/conda/bin",
             "CHOWN_EXTRA_OPTS=-R",
         ],
         command=[
             "start.sh",
             "bash",
             "-c",
-            "stat -c '%n:%u:%g' /home/jovyan/.bashrc /opt/conda/bin/jupyter",
+            "stat -c '%n:%u:%g' /home/luma/.bashrc /opt/conda/bin/jupyter",
         ],
     )
-    assert "/home/jovyan/.bashrc:1010:101" in logs
+    assert "/home/luma/.bashrc:1010:101" in logs
     assert "/opt/conda/bin/jupyter:1010:101" in logs
 
 
@@ -211,7 +211,7 @@ def test_group_add(container: TrackedContainer) -> None:
         timeout=5,
         no_warnings=False,
         user="1010:1010",
-        group_add=["users"],  # Ensures write access to /home/jovyan
+        group_add=["users"],  # Ensures write access to /home/luma
         command=["start.sh", "id"],
     )
     warnings = TrackedContainer.get_warnings(logs)
@@ -222,7 +222,7 @@ def test_group_add(container: TrackedContainer) -> None:
 
 def test_set_uid(container: TrackedContainer) -> None:
     """Container should run with the specified uid and NB_USER.
-    The /home/jovyan directory will not be writable since it's owned by 1000:users.
+    The /home/luma directory will not be writable since it's owned by 1000:users.
     Additionally verify that "--group-add=users" is suggested in a warning to restore
     write access.
     """
@@ -232,7 +232,7 @@ def test_set_uid(container: TrackedContainer) -> None:
         user="1010",
         command=["start.sh", "id"],
     )
-    assert "uid=1010(jovyan) gid=0(root)" in logs
+    assert "uid=1010(luma) gid=0(root)" in logs
     warnings = TrackedContainer.get_warnings(logs)
     assert len(warnings) == 1
     assert "--group-add=users" in warnings[0]
@@ -245,20 +245,20 @@ def test_set_uid_and_nb_user(container: TrackedContainer) -> None:
         no_warnings=False,
         user="1010",
         environment=["NB_USER=kitten"],
-        group_add=["users"],  # Ensures write access to /home/jovyan
+        group_add=["users"],  # Ensures write access to /home/luma
         command=["start.sh", "id"],
     )
     assert "uid=1010(kitten) gid=0(root)" in logs
     warnings = TrackedContainer.get_warnings(logs)
     assert len(warnings) == 1
-    assert "user is kitten but home is /home/jovyan" in warnings[0]
+    assert "user is kitten but home is /home/luma" in warnings[0]
 
 
 def test_container_not_delete_bind_mount(
     container: TrackedContainer, tmp_path: pathlib.Path
 ) -> None:
     """Container should not delete host system files when using the (docker)
-    -v bind mount flag and mapping to /home/jovyan.
+    -v bind mount flag and mapping to /home/luma.
     """
     d = tmp_path / "data"
     d.mkdir()
@@ -274,7 +274,7 @@ def test_container_not_delete_bind_mount(
             "NB_USER=user",
             "CHOWN_HOME=yes",
         ],
-        volumes={d: {"bind": "/home/jovyan/data", "mode": "rw"}},
+        volumes={d: {"bind": "/home/luma/data", "mode": "rw"}},
         command=["start.sh", "ls"],
     )
     assert p.read_text() == "some-content"

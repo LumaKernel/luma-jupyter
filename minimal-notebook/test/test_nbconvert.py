@@ -26,7 +26,7 @@ def test_nbconvert(
 ) -> None:
     """Check if nbconvert is able to convert a notebook file"""
     host_data_dir = THIS_DIR / "data"
-    cont_data_dir = "/home/jovyan/data"
+    cont_data_dir = "/home/luma/data"
     output_dir = "/tmp"
     LOGGER.info(
         f"Test that the example notebook {test_file} can be converted to {output_format} ..."
