@@ -357,7 +357,7 @@ RUN curl -kLO https://beta.quicklisp.org/quicklisp.lisp
 RUN sbcl --non-interactive --load quicklisp.lisp \
       --eval "(quicklisp-quickstart:install)" \
       --eval "(ql-util:without-prompting (ql:add-to-init-file))"
-RUN ecl --load quicklisp/setup.lisp \
+RUN ecl --load quicklisp.lisp \
       --eval "(ql-util:without-prompting (ql:add-to-init-file))" \
       --eval "(uiop:quit)"
 
