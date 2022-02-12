@@ -20,7 +20,6 @@ COPY --from=haskell /opt/stack /opt/stack
 COPY --from=haskell /home/luma/ihaskell_examples /home/luma/examples/haskell
 
 ENV CCL_VERSION "1.12.1-1"
-ENV CLASP_VERSION "0.4.2.r4924.gfb017d54b-1"
 ENV PATH "${HOME}/.local/bin:${HOME}/miniconda/bin/:${PATH}"
 
 # ffmpeg for matplotlib anim & dvipng+cm-super for latex labels
@@ -99,11 +98,8 @@ RUN apt-get update --yes && \
 
 # CommonLisp
 RUN wget https://github.com/yitzchak/mpr/releases/download/ccl_${CCL_VERSION}/ccl_${CCL_VERSION}_amd64_ubuntu_focal.deb && \
-    wget https://github.com/yitzchak/mpr/releases/download/clasp-cl-git_${CLASP_VERSION}/clasp-cl-git_${CLASP_VERSION}_amd64_ubuntu_focal.deb && \
     apt-get install -y ./ccl_${CCL_VERSION}_amd64_ubuntu_focal.deb \
-                       ./clasp-cl-git_${CLASP_VERSION}_amd64_ubuntu_focal.deb && \
-    rm ccl_${CCL_VERSION}_amd64_ubuntu_focal.deb \
-       clasp-cl-git_${CLASP_VERSION}_amd64_ubuntu_focal.deb
+    rm ccl_${CCL_VERSION}_amd64_ubuntu_focal.deb
 
 # Stack Linux (generic) Manual download
 # https://docs.haskellstack.org/en/stable/install_and_upgrade/#linux-generic
@@ -370,8 +366,6 @@ RUN jupyter serverextension enable --user --py jupyterlab; \
     ccl --load quicklisp/setup.lisp \
       --eval "(ql-util:without-prompting (ql:add-to-init-file))" \
       --eval "(uiop:quit)"; \
-    iclasp-boehmprecise --non-interactive --load quicklisp/setup.lisp \
-      --eval "(ql-util:without-prompting (ql:add-to-init-file))"; \
     ecl --load quicklisp/setup.lisp \
       --eval "(ql-util:without-prompting (ql:add-to-init-file))" \
       --eval "(uiop:quit)";
@@ -398,11 +392,6 @@ RUN git clone https://github.com/yitzchak/shasht.git $HOME/quicklisp/local-proje
       --eval "(ql:quickload '(:common-lisp-jupyter :cytoscape-clj :kekule-clj :resizable-box-clj :ngl-clj))" \
       --eval "(clj:install :use-implementation t)" \
       --eval "(uiop:quit)"; \
-    iclasp-boehmprecise --non-interactive \
-      --eval "(ql:quickload :common-lisp-jupyter)" \
-      --eval "(clj:install :use-implementation t)"; \
-    iclasp-boehmprecise --non-interactive \
-      --eval "(ql:quickload '(:cytoscape-clj :kekule-clj :resizable-box-clj :ngl-clj))"; \
     ecl \
       --eval "(ql:quickload '(:common-lisp-jupyter :cytoscape-clj :kekule-clj :resizable-box-clj :ngl-clj))" \
       --eval "(clj:install :use-implementation t)" \
