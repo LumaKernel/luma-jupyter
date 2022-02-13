@@ -204,8 +204,8 @@ else
         _log "WARNING: container must be started as root to grant sudo permissions!"
     fi
 
-    luma="$(id -u luma 2>/dev/null)"  # The default UID for the luma user
-    luma="$(id -g luma 2>/dev/null)"  # The default GID for the luma user
+    JOVYAN_UID="$(id -u luma 2>/dev/null)"  # The default UID for the luma user
+    JOVYAN_GID="$(id -g luma 2>/dev/null)"  # The default GID for the luma user
 
     # Attempt to ensure the user uid we currently run as has a named entry in
     # the /etc/passwd file, as it avoids software crashing on hard assumptions
@@ -242,10 +242,10 @@ else
     if [[ "${NB_USER}" != "luma" && "${NB_USER}" != "$(id -un)" ]]; then
         _log "WARNING: container must be started as root to change the desired user's name with NB_USER=\"${NB_USER}\"!"
     fi
-    if [[ "${NB_UID}" != "${luma}" && "${NB_UID}" != "$(id -u)" ]]; then
+    if [[ "${NB_UID}" != "${JOVYAN_UID}" && "${NB_UID}" != "$(id -u)" ]]; then
         _log "WARNING: container must be started as root to change the desired user's id with NB_UID=\"${NB_UID}\"!"
     fi
-    if [[ "${NB_GID}" != "${luma}" && "${NB_GID}" != "$(id -g)" ]]; then
+    if [[ "${NB_GID}" != "${JOVYAN_GID}" && "${NB_GID}" != "$(id -g)" ]]; then
         _log "WARNING: container must be started as root to change the desired user's group id with NB_GID=\"${NB_GID}\"!"
     fi
 
