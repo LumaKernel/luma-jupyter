@@ -380,6 +380,24 @@ USER root
 COPY ./examples/common-lisp $EXAMPLES_PATH
 RUN fix-permissions $EXAMPLES_PATH
 
+# install rust
+# https://github.com/hecrj/setup-rust-action/blob/master/src/rustup.ts
+USER root
+RUN apt-get update --yes && \
+    apt-get install --yes --no-install-recommends \
+      cmake \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+USER ${NB_UID}
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh
+RUN sh rustup.sh -y --default-toolchain none --profile=minimal
+RUN rm rustup.sh
+ENV PATH="${HOME}/.cargo/bin:${PATH}"
+RUN rustup --version
+ARG RUST_VERSION="1.58.1"
+RUN rustup toolchain install "${RUST_VERSION}" -c rustfmt
+RUN cargo install evcxr_jupyter
+RUN evcxr_jupyter --install
+
 USER ${NB_UID}
 
 WORKDIR "${HOME}"
