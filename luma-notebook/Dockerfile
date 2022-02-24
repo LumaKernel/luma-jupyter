@@ -398,6 +398,22 @@ RUN rustup toolchain install "${RUST_VERSION}" -c rustfmt
 RUN cargo install evcxr_jupyter
 RUN evcxr_jupyter --install
 
-USER ${NB_UID}
+# install wolfram engine
+USER root
+RUN wget https://account.wolfram.com/download/public/wolfram-engine/desktop/LINUX -O wolfram-installer
+RUN chmod +x wolfram-installer
+RUN ./wolfram-installer
+RUN rm -rf ./wolfram-installer
+RUN apt-get update --yes && \
+    apt-get install --yes --no-install-recommends \
+      avahi-daemon \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+USER ${NB_UID}
+RUN git clone https://github.com/WolframResearch/WolframLanguageForJupyter.git "$HOME/WolframLanguageForJupyter"
+COPY ./wolfram/how-to-activate-wolfram.txt "$HOME"
+COPY ./wolfram/examples "$HOME/examples/wolfram"
+
+
+USER ${NB_UID}
 WORKDIR "${HOME}"

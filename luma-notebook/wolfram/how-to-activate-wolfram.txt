@@ -1,0 +1,4 @@
+open terminial and
+
+wolframscript -activate
+./WolframLanguageForJupyter/configure-jupyter.wls add
